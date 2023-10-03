@@ -21,7 +21,7 @@ module.exports = () => {
       useUnifiedTopology: true,
     })
     .then(() => console.log(`DB connection successful!`))
-    .catch((err) => {
+    .catch((err:any) => {
       console.log('DB Connection Failed !');
       console.log(`err`, err);
     });
