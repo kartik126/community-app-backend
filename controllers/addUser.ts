@@ -33,17 +33,20 @@ let addUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: "Email or phone already exists" });
     }
 
-    // let matrimony = await Matrimony.create({});
+    // Create the Matrimony document first
+    let matrimony = await Matrimony.create({});
 
+    // Create the User document with a reference to the Matrimony document
     let user = await User.create({
       ...requestBody,
+      matrimony_registration: matrimony._id,
     });
 
     let token = sign(
       {
         _id: user._id,
       },
-      process.env.API_SECRET as string,
+      process.env.API_SECRET as string
     );
 
     return res.status(200).send({
