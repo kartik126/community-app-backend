@@ -48,9 +48,9 @@ app.use(function (err: any, req: Request, res: Response, next: NextFunction) {
   });
 });
 
-app.listen(80, () => {
+app.listen(443, () => {
   dbConnect();
-  console.log(`Example app listening on port ${80}`);
+  console.log(`Example app listening on port ${443}`);
 });
 
 module.exports = app;
