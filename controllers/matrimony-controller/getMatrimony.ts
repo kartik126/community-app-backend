@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Matrimony from "../models/matrimony";
+import Matrimony from "../../models/matrimony";
 import { z } from "zod";
 
 const requestBodySchema = z.object({
@@ -15,6 +15,7 @@ const requestBodySchema = z.object({
   complexion: z.string().optional(),
   education: z.string().optional(),
   location: z.string().optional(),
+  like: z.string().optional(),
 });
 
 const getMatrimony = async (req: Request, res: Response) => {
@@ -35,6 +36,18 @@ const getMatrimony = async (req: Request, res: Response) => {
     } = requestBodySchema.parse(req.body);
 
     const filter: any = {};
+
+    const likeArray = [];
+
+    for (const key in req.body) {
+      if (key.startsWith("like[") && key.endsWith("][user]")) {
+        // Extract the user ID from the key and add it to the likeArray
+        const userId = req.body[key];
+        likeArray.push({ user: userId });
+      }
+    }
+
+    console.log("User IDs from form data:", likeArray);
 
     if (minAge !== undefined && maxAge !== undefined) {
       filter.age = { $gte: minAge, $lte: maxAge };
@@ -64,14 +77,20 @@ const getMatrimony = async (req: Request, res: Response) => {
       filter.location = location;
     }
 
-    console.log("request body =================>", minWeight, maxWeight);
-
     const matrimonyUser = await (Object.keys(filter).length === 0
       ? Matrimony.find({})
       : Matrimony.find(filter));
 
     if (!matrimonyUser || matrimonyUser.length === 0) {
       return res.status(404).json({ message: "Not Found" });
+    }
+
+    for (const matrimonyUsers of matrimonyUser) {
+      if (likeArray.length > 0) {
+        matrimonyUsers.like = likeArray;
+        // Save the updated Matrimony document
+        await matrimonyUsers.save();
+      }
     }
 
     res.status(200).send({ message: "success", data: matrimonyUser });

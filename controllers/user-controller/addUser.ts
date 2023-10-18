@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { sign } from "jsonwebtoken";
-import User from "../models/user";
-import Matrimony from "../models/matrimony";
+import User from "../../models/user";
+import Matrimony from "../../models/matrimony";
 
 import { z } from "zod";
+import FamilyTree from "../../models/familyTree";
 
 const requestBodySchema = z.object({
   fullname: z.string(),
@@ -15,15 +16,9 @@ const requestBodySchema = z.object({
   gender: z.string(),
 });
 
-console.log(
-  "apppp secreett============================",
-  process.env.API_SECRET as string
-);
-
 let addUser = async (req: Request, res: Response) => {
   try {
     let requestBody = requestBodySchema.parse(req.body);
-
     // Check if the email or phone already exists
     const existingUser = await User.findOne({
       $or: [{ email: requestBody.email }, { phone: requestBody.phone }],
@@ -32,30 +27,39 @@ let addUser = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(400).json({ message: "Email or phone already exists" });
     }
-
-    // Create the Matrimony document first
     let matrimony = await Matrimony.create({});
+    let familyTree = await FamilyTree.create({});
 
-    // Create the User document with a reference to the Matrimony document
     let user = await User.create({
-      ...requestBody,
+      fullname: requestBody.fullname,
+      caste: requestBody.caste,
+      email: requestBody.email,
+      phone: requestBody.phone,
+      password: requestBody.password,
+      dob: requestBody.dob,
+      gender: requestBody.gender,
+      matrimony_registered: 0,
       matrimony_registration: matrimony._id,
     });
 
-    let token = sign(
-      {
-        _id: user._id,
-      },
-      process.env.API_SECRET as string
-    );
+    user.family_tree.push(familyTree._id);
+    await user.save();
+
+    // let token = sign(
+    //   {
+    //     _id: user._id,
+    //   },
+    //   process.env.API_SECRET as string
+    // );
 
     return res.status(200).send({
       message: "User created successfully",
-      accesstoken: token,
+      // accesstoken: token,
       user: user,
     });
   } catch (e) {
     res.status(500).send(e);
+    console.log({ error: e });
   }
 };
 

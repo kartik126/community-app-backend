@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { z } from "zod";
-import User from "../models/user";
+import User from "../../models/user";
 
 const requestBodySchema = z.object({
   fullname: z.string().optional(),

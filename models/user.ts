@@ -10,10 +10,7 @@ let userSchema = new Schema({
     type: String,
   },
   email: {
-    unique: true,
     type: String,
-    minlength: 10,
-    maxlength: 50,
   },
   phone: {
     type: String,
@@ -28,10 +25,20 @@ let userSchema = new Schema({
   gender: {
     type: String,
   },
+  matrimony_registered: {
+    type: Number,
+    defaultValue: false,
+  },
   matrimony_registration: {
     type: SchemaTypes.ObjectId,
     ref: "Matrimony",
   },
+  family_tree: [
+    {
+      type: SchemaTypes.ObjectId,
+      ref: "FamilyTree",
+    },
+  ],
 });
 
 let User = mongoose.model("User", userSchema);

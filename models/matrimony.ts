@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, SchemaTypes } from "mongoose";
 
 let matrimonySchema = new Schema({
-  fullname:{
+  fullname: {
     type: String,
     minlength: 3,
     maxlength: 20,
@@ -13,10 +13,7 @@ let matrimonySchema = new Schema({
     type: String,
   },
   email: {
-    unique: true,
-    type: String,
-    minlength: 10,
-    maxlength: 50,
+    type: String
   },
   dob: {
     type: String,
@@ -123,6 +120,13 @@ let matrimonySchema = new Schema({
   comments: [
     {
       type: String,
+    },
+  ],
+  like: [
+    {
+      user: {
+        type: String,
+      },
     },
   ],
 });
